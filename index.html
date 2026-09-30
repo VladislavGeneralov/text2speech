@@ -87,8 +87,7 @@
   .text p.h { color: var(--text); font-weight: 600; }
   .text .now { color: var(--text); }
 
-  .chapters { display: flex; flex-direction: column; gap: 10px; }
-  .chapter {
+  .now-card {
     background: var(--card);
     border-radius: 12px;
     padding: 12px;
@@ -96,10 +95,31 @@
     flex-direction: column;
     gap: 8px;
   }
-  .chapter.playing { outline: 1px solid var(--accent); }
-  .chapter-head { display: flex; justify-content: space-between; gap: 12px; }
-  .chapter-title { font-weight: 500; }
-  .chapter-dur { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .now-title { font-weight: 500; }
+  .num { color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  /* compact chapter list: one tappable line per chapter */
+  .chapters { display: flex; flex-direction: column; }
+  .ch-item {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 4px;
+    border: 0;
+    border-bottom: 1px solid #242424;
+    background: none;
+    color: var(--text);
+    font: inherit;
+    font-size: 15px;
+    text-align: left;
+    touch-action: manipulation;
+  }
+  .ch-item .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ch-item .dur { color: var(--muted); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .ch-item.active .t { color: var(--accent); }
+  .ch-item:active { background: #1a1a1a; }
   .ctl { display: flex; align-items: center; gap: 10px; }
   .ctl input[type=range] { flex: 1; min-width: 0; accent-color: var(--accent); touch-action: manipulation; }
   .ctl .pos { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -149,6 +169,19 @@
     <input type="range" id="rate" min="0.7" max="1.5" step="0.05" value="1">
     <output id="rateOut" for="rate">1.00×</output>
   </div>
+
+  <section class="now-card">
+    <div class="now-title"><span class="num" id="nowNum"></span> <span id="nowTitle"></span></div>
+    <div class="ctl">
+      <button type="button" class="play" id="playBtn" aria-label="Play">▶</button>
+      <input type="range" id="seek" min="0" max="1" step="1" value="0" aria-label="Position">
+      <span class="pos" id="pos">0:00</span>
+    </div>
+    <div class="skip">
+      <button type="button" data-skip="-15">−15 s</button>
+      <button type="button" data-skip="15">+15 s</button>
+    </div>
+  </section>
 
   <section class="text-panel" id="textPanel" hidden>
     <div class="text-head">
@@ -304,8 +337,11 @@ scToggle.addEventListener("click", () => (musicNode ? stopMusic() : startMusic()
 
 // ---- Chapters on the shared player ----
 let book = null, base = "";
-const rows = [];   // per chapter: { ch, card, btn, seek, pos, dragging }
+const rows = [];   // per chapter: { ch, item } — item is its line in the chapter list
 let cur = -1;      // index of the chapter loaded into the player
+const playBtn = $("playBtn"), seek = $("seek"), pos = $("pos");
+let dragging = false;
+const pad = n => String(n).padStart(2, "0");
 
 function skip(sec) {
   if (cur < 0) return;
@@ -388,34 +424,55 @@ $("copyText").addEventListener("click", async () => {
   setTimeout(() => { textInfo.textContent = "±15 s"; }, 1500);
 });
 
+// Load chapter i into the shared player (and its text); play only when asked.
+function selectChapter(i) {
+  if (i === cur) return;
+  if (cur >= 0) rows[cur].item.classList.remove("active");
+  cur = i;
+  const r = rows[i];
+  r.item.classList.add("active");
+  $("nowNum").textContent = pad(i + 1);
+  $("nowTitle").textContent = r.ch.title;
+  seek.max = r.ch.duration; seek.value = 0; pos.textContent = "0:00";
+  player.src = base + r.ch.file;
+  if ("mediaSession" in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: `${pad(i + 1)} · ${r.ch.title}`, artist: book.author, album: book.title });
+  }
+  loadText(i).catch(() => { textPanel.hidden = true; });
+}
+
 function playChapter(i, startAt = 0) {
   ensureCtx();
   if (i !== cur) {
-    if (cur >= 0) { rows[cur].card.classList.remove("playing"); rows[cur].btn.textContent = "▶"; }
-    cur = i;
-    const r = rows[i];
-    r.card.classList.add("playing");
-    player.src = base + r.ch.file;
+    selectChapter(i);
     if (startAt > 0) player.addEventListener("loadedmetadata", () => { player.currentTime = startAt; }, { once: true });
-    if ("mediaSession" in navigator) {
-      navigator.mediaSession.metadata = new MediaMetadata({ title: r.ch.title, artist: book.author, album: book.title });
-    }
-    loadText(i).catch(() => { textPanel.hidden = true; });
   }
   player.play();
 }
 
+playBtn.addEventListener("click", () => {
+  if (cur < 0) return;
+  if (player.paused) { ensureCtx(); player.play(); } else player.pause();
+});
+seek.addEventListener("input", () => { dragging = true; pos.textContent = clock(seek.value); });
+seek.addEventListener("change", () => {
+  dragging = false;
+  if (cur >= 0) player.currentTime = parseFloat(seek.value);
+});
+document.querySelectorAll("[data-skip]").forEach(b =>
+  b.addEventListener("click", () => skip(parseFloat(b.dataset.skip))));
+
 // iOS Safari resets playbackRate whenever the source changes, so reapply on every play
 player.addEventListener("play", () => {
   player.playbackRate = parseFloat(rate.value);
-  if (cur >= 0) rows[cur].btn.textContent = "❚❚";
+  playBtn.textContent = "❚❚";
 });
-player.addEventListener("pause", () => { if (cur >= 0) rows[cur].btn.textContent = "▶"; });
+player.addEventListener("pause", () => { playBtn.textContent = "▶"; });
 player.addEventListener("timeupdate", () => {
   if (cur < 0) return;
-  const r = rows[cur];
-  if (!r.dragging) r.seek.value = player.currentTime;
-  r.pos.textContent = clock(player.currentTime);
+  if (!dragging) seek.value = player.currentTime;
+  pos.textContent = clock(player.currentTime);
   if (!document.hidden) updateText(player.currentTime);
 });
 player.addEventListener("seeked", () => updateText(player.currentTime, true));
@@ -438,41 +495,17 @@ async function init() {
   $("author").textContent = book.author;
 
   book.chapters.forEach((ch, i) => {
-    const card = document.createElement("div");
-    card.className = "chapter";
-    card.innerHTML = `
-      <div class="chapter-head">
-        <span class="chapter-title"></span>
-        <span class="chapter-dur">${fmt(ch.duration)}</span>
-      </div>
-      <div class="ctl">
-        <button type="button" class="play" aria-label="Play">▶</button>
-        <input type="range" min="0" max="${ch.duration}" step="1" value="0" aria-label="Position">
-        <span class="pos">0:00</span>
-      </div>
-      <div class="skip">
-        <button type="button" data-skip="-15">−15 s</button>
-        <button type="button" data-skip="15">+15 s</button>
-      </div>`;
-    card.querySelector(".chapter-title").textContent = ch.title;
-    const r = { ch, card, btn: card.querySelector(".play"), seek: card.querySelector("input"),
-                pos: card.querySelector(".pos"), dragging: false };
-    r.btn.addEventListener("click", () => {
-      if (cur === i && !player.paused) player.pause();
-      else playChapter(i);
-    });
-    r.seek.addEventListener("input", () => { r.dragging = true; r.pos.textContent = clock(r.seek.value); });
-    r.seek.addEventListener("change", () => {
-      r.dragging = false;
-      if (cur === i) player.currentTime = parseFloat(r.seek.value);
-      else playChapter(i, parseFloat(r.seek.value));
-    });
-    card.querySelectorAll("[data-skip]").forEach(b =>
-      b.addEventListener("click", () => { if (cur === i) skip(parseFloat(b.dataset.skip)); }));
-    rows.push(r);
-    $("chapters").append(card);
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "ch-item";
+    item.innerHTML = `<span class="num">${pad(i + 1)}</span><span class="t"></span><span class="dur">${fmt(ch.duration)}</span>`;
+    item.querySelector(".t").textContent = ch.title;
+    item.addEventListener("click", () => playChapter(i));
+    rows.push({ ch, item });
+    $("chapters").append(item);
   });
   applyRate();
+  if (rows.length) selectChapter(0);
 }
 
 init().catch(e => { $("chapters").innerHTML = `<p class="msg">Could not load: ${e.message}</p>`; });
