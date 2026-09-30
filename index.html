@@ -426,12 +426,13 @@ player.addEventListener("ended", () => {
 
 async function init() {
   const params = new URLSearchParams(location.search);
-  const index = await fetch("books/index.json").then(r => r.json());
+  // no-cache: Pages lets browsers keep files for 10 min, which hides newly published chapters
+  const index = await fetch("books/index.json", { cache: "no-cache" }).then(r => r.json());
   const slug = params.get("book") || index[0]?.slug;
   if (!slug) { $("chapters").innerHTML = '<p class="msg">No books yet.</p>'; return; }
 
   base = `books/${slug}/`;
-  book = await fetch(base + "book.json").then(r => r.json());
+  book = await fetch(base + "book.json", { cache: "no-cache" }).then(r => r.json());
   document.title = book.title;
   $("title").textContent = book.title;
   $("author").textContent = book.author;
