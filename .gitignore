@@ -6,3 +6,4 @@ render.log
 render.err
 autopublish.log
 __pycache__/
+render.prev.log

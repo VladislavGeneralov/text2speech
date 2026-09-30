@@ -20,7 +20,8 @@ plus text with per-sentence timings, then published to GitHub Pages and listened
    then delete `site/books/<slug>/` so the full run starts clean.
 4. Full render (takes hours: ~2.2× realtime on the Ryzen 5 5500U, ~160 words per audio minute):
    `python convert.py Book.pdf --voice af_heart --speed 0.9`
-   Run it as a separate process so it doesn't die with the terminal. The render resumes itself:
+   **Vlad starts it himself with `render.bat`** (double-click, or drag a PDF onto it): processes
+   Claude starts die when the Claude Code session ends. The render resumes itself:
    chapters whose .m4a already exists are skipped. Keep the PC awake.
 5. Publish: `publish.bat` (or `autopublish.ps1`, which publishes new chapters every 5 minutes while
    the render runs; Claude isn't allowed to start it, Vlad runs it himself).
