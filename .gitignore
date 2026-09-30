@@ -1,0 +1,7 @@
+models/
+samples/
+*.pdf
+*.wav
+render.log
+render.err
+__pycache__/

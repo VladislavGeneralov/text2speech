@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121212">
+<title>Bedtime Reader</title>
+<style>
+  :root {
+    --bg: #121212;
+    --card: #1c1c1c;
+    --text: #d8d4cc;
+    --muted: #8a857c;
+    --accent: #c9a86a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+             max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  h1 { margin: 0; font-size: 22px; font-weight: 600; }
+  .author { margin: 2px 0 0; color: var(--muted); }
+
+  /* sticky so the speed control stays reachable while scrolling the chapter list */
+  .speed {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--bg);
+    padding: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .speed label { color: var(--muted); }
+  .speed input { flex: 1; accent-color: var(--accent); touch-action: manipulation; }
+  .speed output { min-width: 3.5em; text-align: right; font-variant-numeric: tabular-nums; }
+
+  .chapters { display: flex; flex-direction: column; gap: 10px; }
+  .chapter {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chapter.playing { outline: 1px solid var(--accent); }
+  .chapter-head { display: flex; justify-content: space-between; gap: 12px; }
+  .chapter-title { font-weight: 500; }
+  .chapter-dur { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  audio { width: 100%; }
+  .msg { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 id="title">…</h1>
+    <p class="author" id="author"></p>
+  </header>
+
+  <div class="speed">
+    <label for="rate">Speed</label>
+    <input type="range" id="rate" min="0.7" max="1.5" step="0.05" value="1">
+    <output id="rateOut" for="rate">1.00×</output>
+  </div>
+
+  <section class="chapters" id="chapters"></section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const rate = $("rate"), rateOut = $("rateOut");
+const audios = [];
+
+function load(key, fallback) {
+  try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; }
+}
+function save(key, value) {
+  try { localStorage.setItem(key, value); } catch {}
+}
+
+function fmt(sec) {
+  if (sec < 60) return `${Math.round(sec)} s`;
+  const m = Math.round(sec / 60);
+  return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`;
+}
+
+function applyRate() {
+  const r = parseFloat(rate.value);
+  rateOut.textContent = r.toFixed(2) + "×";
+  for (const a of audios) { a.defaultPlaybackRate = r; a.playbackRate = r; }
+  save("rate", r);
+}
+rate.value = load("rate", "1");
+rate.addEventListener("input", applyRate);
+
+async function init() {
+  const params = new URLSearchParams(location.search);
+  const index = await fetch("books/index.json").then(r => r.json());
+  const slug = params.get("book") || index[0]?.slug;
+  if (!slug) { $("chapters").innerHTML = '<p class="msg">No books yet.</p>'; return; }
+
+  const base = `books/${slug}/`;
+  const book = await fetch(base + "book.json").then(r => r.json());
+  document.title = book.title;
+  $("title").textContent = book.title;
+  $("author").textContent = book.author;
+
+  for (const ch of book.chapters) {
+    const card = document.createElement("div");
+    card.className = "chapter";
+    card.innerHTML = `
+      <div class="chapter-head">
+        <span class="chapter-title"></span>
+        <span class="chapter-dur">${fmt(ch.duration)}</span>
+      </div>
+      <audio controls preload="none"></audio>`;
+    card.querySelector(".chapter-title").textContent = ch.title;
+    const a = card.querySelector("audio");
+    a.src = base + ch.file;
+    // iOS Safari resets playbackRate when a media element (re)loads, so reapply on play
+    a.addEventListener("play", () => {
+      a.playbackRate = parseFloat(rate.value);
+      for (const other of audios) if (other !== a) other.pause();
+      document.querySelectorAll(".chapter.playing").forEach(c => c.classList.remove("playing"));
+      card.classList.add("playing");
+      if ("mediaSession" in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({ title: ch.title, artist: book.author, album: book.title });
+      }
+    });
+    audios.push(a);
+    $("chapters").append(card);
+  }
+  applyRate();
+}
+
+init().catch(e => { $("chapters").innerHTML = `<p class="msg">Could not load: ${e.message}</p>`; });
+</script>
+</body>
+</html>
