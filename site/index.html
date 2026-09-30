@@ -62,6 +62,18 @@
   .chapter-title { font-weight: 500; }
   .chapter-dur { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
   audio { width: 100%; }
+  .skip { display: flex; gap: 10px; }
+  .skip button {
+    flex: 1;
+    min-height: 44px;
+    border: 0;
+    border-radius: 10px;
+    background: #2a2a2a;
+    color: var(--text);
+    font: inherit;
+    touch-action: manipulation;
+  }
+  .skip button:active { background: #353535; }
   .msg { color: var(--muted); }
 </style>
 </head>
@@ -108,6 +120,18 @@ function applyRate() {
 rate.value = load("rate", "1");
 rate.addEventListener("input", applyRate);
 
+let current = null;  // the chapter audio that last started playing
+
+function skip(a, sec) {
+  const end = isFinite(a.duration) ? a.duration : Infinity;
+  a.currentTime = Math.min(Math.max(0, a.currentTime + sec), end);
+}
+
+if ("mediaSession" in navigator) {
+  navigator.mediaSession.setActionHandler("seekbackward", () => current && skip(current, -15));
+  navigator.mediaSession.setActionHandler("seekforward", () => current && skip(current, 15));
+}
+
 async function init() {
   const params = new URLSearchParams(location.search);
   const index = await fetch("books/index.json").then(r => r.json());
@@ -128,19 +152,30 @@ async function init() {
         <span class="chapter-title"></span>
         <span class="chapter-dur">${fmt(ch.duration)}</span>
       </div>
-      <audio controls preload="none"></audio>`;
+      <audio controls preload="none"></audio>
+      <div class="skip">
+        <button type="button" data-skip="-15">−15 s</button>
+        <button type="button" data-skip="15">+15 s</button>
+      </div>`;
     card.querySelector(".chapter-title").textContent = ch.title;
     const a = card.querySelector("audio");
     a.src = base + ch.file;
+    card.querySelectorAll("[data-skip]").forEach(b =>
+      b.addEventListener("click", () => skip(a, parseFloat(b.dataset.skip))));
     // iOS Safari resets playbackRate when a media element (re)loads, so reapply on play
     a.addEventListener("play", () => {
       a.playbackRate = parseFloat(rate.value);
+      current = a;
       for (const other of audios) if (other !== a) other.pause();
       document.querySelectorAll(".chapter.playing").forEach(c => c.classList.remove("playing"));
       card.classList.add("playing");
       if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({ title: ch.title, artist: book.author, album: book.title });
       }
+    });
+    a.addEventListener("ended", () => {
+      const next = audios[audios.indexOf(a) + 1];
+      if (next) { next.currentTime = 0; next.play(); }
     });
     audios.push(a);
     $("chapters").append(card);
