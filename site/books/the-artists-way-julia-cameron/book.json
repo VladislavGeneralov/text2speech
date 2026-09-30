@@ -10,6 +10,22 @@
    "text": "ch01.json",
    "duration": 110.81,
    "sections": []
+  },
+  {
+   "n": 2,
+   "title": "Introduction to the Twenty-fifth Anniversary Edition of The Artist’s Way",
+   "file": "ch02.m4a",
+   "text": "ch02.json",
+   "duration": 386.21,
+   "sections": []
+  },
+  {
+   "n": 3,
+   "title": "Dedication",
+   "file": "ch03.m4a",
+   "text": "ch03.json",
+   "duration": 10.58,
+   "sections": []
   }
  ]
 }
