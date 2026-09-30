@@ -161,6 +161,101 @@
      "t": 2213.02
     }
    ]
+  },
+  {
+   "n": 10,
+   "title": "Week 4: Recovering a Sense of Integrity",
+   "file": "ch10.m4a",
+   "text": "ch10.json",
+   "duration": 1537.87,
+   "sections": [
+    {
+     "title": "Honest Changes",
+     "t": 24.9
+    },
+    {
+     "title": "Buried Dreams, an Exercise",
+     "t": 990.34
+    },
+    {
+     "title": "Reading Deprivation",
+     "t": 1057.45
+    },
+    {
+     "title": "Tasks",
+     "t": 1338.69
+    },
+    {
+     "title": "Check-In",
+     "t": 1505.39
+    }
+   ]
+  },
+  {
+   "n": 11,
+   "title": "Week 5: Recovering a Sense of Possibility",
+   "file": "ch11.m4a",
+   "text": "ch11.json",
+   "duration": 1751.22,
+   "sections": [
+    {
+     "title": "Limits",
+     "t": 28.21
+    },
+    {
+     "title": "Finding the River",
+     "t": 475.04
+    },
+    {
+     "title": "The Virtue Trap",
+     "t": 784.45
+    },
+    {
+     "title": "The Virtue-Trap Quiz",
+     "t": 1369.66
+    },
+    {
+     "title": "Forbidden Joys, an Exercise",
+     "t": 1423.62
+    },
+    {
+     "title": "Wish List, an Exercise",
+     "t": 1488.84
+    }
+   ]
+  },
+  {
+   "n": 12,
+   "title": "Week 6: Recovering a Sense of Abundance",
+   "file": "ch12.m4a",
+   "text": "ch12.json",
+   "duration": 1310.88,
+   "sections": [
+    {
+     "title": "The Great Creator",
+     "t": 27.14
+    },
+    {
+     "title": "Luxury",
+     "t": 485.97
+    },
+    {
+     "title": "Counting, an Exercise",
+     "t": 1023.28
+    },
+    {
+     "title": "Money Madness, an Exercise",
+     "t": 1082.28
+    },
+    {
+     "title": "Tasks",
+     "t": 1153.88
+    },
+    {
+     "title": "Check-In",
+     "t": 1278.49
+    }
+   ]
   }
  ]
 }
