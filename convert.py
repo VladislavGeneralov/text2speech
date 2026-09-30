@@ -95,6 +95,7 @@ def build_chapters(doc):
 def render_chapter(tts, ch, voice, speed, lang, wav_path, limit=None):
     silence = lambda s: np.zeros(int(SR * s), dtype=np.float32)
     parts, t, sections = [], 0.0, []
+    segs = []  # [start, end, text, kind]; kind 0 = same paragraph, 1 = new paragraph, 2 = heading
     items = [("title", ch["title"])] + ch["items"]
     if limit:
         items = items[:limit]
@@ -102,15 +103,38 @@ def render_chapter(tts, ch, voice, speed, lang, wav_path, limit=None):
         if kind == "section":
             parts.append(silence(SECTION_GAP)); t += SECTION_GAP
             sections.append({"title": text, "t": round(t, 2)})
-        audio, sr = tts.create(text, voice=voice, speed=speed, lang=lang)
-        assert sr == SR
-        parts.append(audio.astype(np.float32)); t += len(audio) / SR
+        # one TTS call per sentence so the page knows when each sentence is spoken
+        sentences = [text] if kind != "para" else split_sentences(text)
+        for j, s in enumerate(sentences):
+            audio, sr = tts.create(s, voice=voice, speed=speed, lang=lang)
+            assert sr == SR
+            start = t
+            parts.append(audio.astype(np.float32)); t += len(audio) / SR
+            segs.append([round(start, 2), round(t, 2), s, 2 if kind != "para" else int(j == 0)])
         gap = 1.0 if kind in ("title", "section") else PARA_GAP
         parts.append(silence(gap)); t += gap
         print(f"\r  {k + 1}/{len(items)} paragraphs", end="", flush=True)
     print()
     sf.write(wav_path, np.concatenate(parts), SR)
-    return round(t, 2), sections
+    return round(t, 2), sections, segs
+
+
+ABBREV = re.compile(r"\b(Mr|Mrs|Ms|Dr|St|Jr|Sr|vs|etc|e\.g|i\.e|No|Mt|Prof)\.$", re.I)
+
+
+def split_sentences(text):
+    # break after . ? ! … (plus closing quotes/brackets) when followed by space
+    pieces = re.split(r"(?<=[.?!…])([”\"’)\]]*)\s+", text)
+    out, buf = [], ""
+    for i in range(0, len(pieces), 2):
+        buf += pieces[i] + (pieces[i + 1] if i + 1 < len(pieces) else "")
+        if ABBREV.search(buf) or (i + 2 < len(pieces) and pieces[i + 2][:1].islower()):
+            buf += " "
+            continue
+        out.append(buf.strip()); buf = ""
+    if buf.strip():
+        out.append(buf.strip())
+    return out
 
 
 def encode(wav, m4a, title, album, track):
@@ -174,9 +198,11 @@ def main():
             continue
         print(f"[{n}/{len(chapters)}] {ch['title']}")
         wav = out / f"ch{n:02d}.wav"
-        dur, sections = render_chapter(tts, ch, a.voice, a.speed, lang, wav, a.limit)
+        dur, sections, segs = render_chapter(tts, ch, a.voice, a.speed, lang, wav, a.limit)
         encode(wav, out / fname, ch["title"], title, n)
-        book["chapters"].append({"n": n, "title": ch["title"], "file": fname,
+        tname = f"ch{n:02d}.json"
+        (out / tname).write_text(json.dumps(segs, ensure_ascii=False, separators=(",", ":")), "utf-8")
+        book["chapters"].append({"n": n, "title": ch["title"], "file": fname, "text": tname,
                                  "duration": dur, "sections": sections})
         book["chapters"].sort(key=lambda c: c["n"])
         jpath.write_text(json.dumps(book, ensure_ascii=False, indent=1), "utf-8")
