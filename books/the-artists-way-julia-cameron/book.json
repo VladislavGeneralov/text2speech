@@ -34,6 +34,51 @@
    "text": "ch04.json",
    "duration": 878.19,
    "sections": []
+  },
+  {
+   "n": 5,
+   "title": "Spiritual Electricity: The Basic Principles",
+   "file": "ch05.m4a",
+   "text": "ch05.json",
+   "duration": 890.41,
+   "sections": []
+  },
+  {
+   "n": 6,
+   "title": "The Basic Tools",
+   "file": "ch06.m4a",
+   "text": "ch06.json",
+   "duration": 2218.03,
+   "sections": []
+  },
+  {
+   "n": 7,
+   "title": "Week 1: Recovering a Sense of Safety",
+   "file": "ch07.m4a",
+   "text": "ch07.json",
+   "duration": 2003.99,
+   "sections": [
+    {
+     "title": "Shadow Artists",
+     "t": 21.79
+    },
+    {
+     "title": "Your Enemy Within: Core Negative Beliefs",
+     "t": 747.57
+    },
+    {
+     "title": "Your Ally Within: Affirmative Weapons",
+     "t": 1121.77
+    },
+    {
+     "title": "Tasks",
+     "t": 1631.66
+    },
+    {
+     "title": "Check-In",
+     "t": 1935.8
+    }
+   ]
   }
  ]
 }
