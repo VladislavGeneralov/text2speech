@@ -95,7 +95,35 @@
     flex-direction: column;
     gap: 8px;
   }
-  .now-title { font-weight: 500; }
+  .now-head { display: flex; align-items: center; gap: 10px; }
+  .now-title { flex: 1; min-width: 0; font-weight: 500; }
+  .now-head button { flex: none; padding: 0 14px; }
+
+  /* chapter list pops up as a bottom sheet */
+  dialog.sheet {
+    width: 100%;
+    max-width: 640px;
+    max-height: 75vh;
+    margin: auto auto 0;
+    padding: 0 0 env(safe-area-inset-bottom);
+    border: 0;
+    border-radius: 16px 16px 0 0;
+    background: var(--card);
+    color: var(--text);
+    display: none;
+    flex-direction: column;
+  }
+  dialog.sheet[open] { display: flex; }
+  dialog.sheet::backdrop { background: rgba(0, 0, 0, 0.6); }
+  .sheet-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 8px 8px 16px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .sheet-head button { min-width: 44px; }
+  .sheet .chapters { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 12px 12px; }
   .num { color: var(--accent); font-variant-numeric: tabular-nums; }
 
   /* compact chapter list: one tappable line per chapter */
@@ -126,7 +154,7 @@
   .ctl .play { width: 44px; flex: none; }
   .skip { display: flex; gap: 10px; }
   .skip button { flex: 1; }
-  .ctl .play, .skip button, .music-load button, .text-head button {
+  .ctl .play, .skip button, .music-load button, .text-head button, .now-head button, .sheet-head button {
     min-height: 44px;
     border: 0;
     border-radius: 10px;
@@ -171,7 +199,10 @@
   </div>
 
   <section class="now-card">
-    <div class="now-title"><span class="num" id="nowNum"></span> <span id="nowTitle"></span></div>
+    <div class="now-head">
+      <div class="now-title"><span class="num" id="nowNum"></span> <span id="nowTitle"></span></div>
+      <button type="button" id="openChapters">Chapters</button>
+    </div>
     <div class="ctl">
       <button type="button" class="play" id="playBtn" aria-label="Play">▶</button>
       <input type="range" id="seek" min="0" max="1" step="1" value="0" aria-label="Position">
@@ -191,7 +222,13 @@
     <div class="text" id="text"></div>
   </section>
 
-  <section class="chapters" id="chapters"></section>
+  <dialog class="sheet" id="chapterSheet">
+    <div class="sheet-head">
+      <span>Chapters</span>
+      <button type="button" id="closeChapters" aria-label="Close">✕</button>
+    </div>
+    <div class="chapters" id="chapters"></div>
+  </dialog>
   <audio id="player" preload="metadata"></audio>
 </main>
 
@@ -460,6 +497,14 @@ seek.addEventListener("change", () => {
   dragging = false;
   if (cur >= 0) player.currentTime = parseFloat(seek.value);
 });
+const sheet = $("chapterSheet");
+$("openChapters").addEventListener("click", () => {
+  sheet.showModal();
+  if (cur >= 0) rows[cur].item.scrollIntoView({ block: "center" });
+});
+$("closeChapters").addEventListener("click", () => sheet.close());
+sheet.addEventListener("click", e => { if (e.target === sheet) sheet.close(); });  // tap on backdrop
+
 document.querySelectorAll("[data-skip]").forEach(b =>
   b.addEventListener("click", () => skip(parseFloat(b.dataset.skip))));
 
@@ -486,7 +531,7 @@ async function init() {
   // no-cache: Pages lets browsers keep files for 10 min, which hides newly published chapters
   const index = await fetch("books/index.json", { cache: "no-cache" }).then(r => r.json());
   const slug = params.get("book") || index[0]?.slug;
-  if (!slug) { $("chapters").innerHTML = '<p class="msg">No books yet.</p>'; return; }
+  if (!slug) { $("nowTitle").textContent = "No books yet."; return; }
 
   base = `books/${slug}/`;
   book = await fetch(base + "book.json", { cache: "no-cache" }).then(r => r.json());
@@ -500,7 +545,7 @@ async function init() {
     item.className = "ch-item";
     item.innerHTML = `<span class="num">${pad(i + 1)}</span><span class="t"></span><span class="dur">${fmt(ch.duration)}</span>`;
     item.querySelector(".t").textContent = ch.title;
-    item.addEventListener("click", () => playChapter(i));
+    item.addEventListener("click", () => { sheet.close(); playChapter(i); });
     rows.push({ ch, item });
     $("chapters").append(item);
   });
@@ -508,7 +553,7 @@ async function init() {
   if (rows.length) selectChapter(0);
 }
 
-init().catch(e => { $("chapters").innerHTML = `<p class="msg">Could not load: ${e.message}</p>`; });
+init().catch(e => { $("nowTitle").textContent = "Could not load: " + e.message; });
 </script>
 </body>
 </html>
