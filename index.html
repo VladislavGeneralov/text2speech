@@ -62,6 +62,31 @@
   .music-load button { min-width: 64px; }
   .msg:empty { display: none; }
 
+  .text-panel {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .text-panel[hidden] { display: none; }
+  .text-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .text-head .msg { font-size: 14px; }
+  .text-head button { min-width: 72px; }
+  .text {
+    max-height: 45vh;
+    overflow-y: auto;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--muted);
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  .text p { margin: 0 0 0.7em; }
+  .text p.h { color: var(--text); font-weight: 600; }
+  .text .now { color: var(--text); }
+
   .chapters { display: flex; flex-direction: column; gap: 10px; }
   .chapter {
     background: var(--card);
@@ -81,7 +106,7 @@
   .ctl .play { width: 44px; flex: none; }
   .skip { display: flex; gap: 10px; }
   .skip button { flex: 1; }
-  .ctl .play, .skip button, .music-load button {
+  .ctl .play, .skip button, .music-load button, .text-head button {
     min-height: 44px;
     border: 0;
     border-radius: 10px;
@@ -90,7 +115,7 @@
     font: inherit;
     touch-action: manipulation;
   }
-  .ctl .play:active, .skip button:active, .music-load button:active { background: #353535; }
+  .ctl .play:active, .skip button:active, .music-load button:active, .text-head button:active { background: #353535; }
   .music-load button:disabled { opacity: 0.4; }
   .msg { color: var(--muted); }
 </style>
@@ -124,6 +149,14 @@
     <input type="range" id="rate" min="0.7" max="1.5" step="0.05" value="1">
     <output id="rateOut" for="rate">1.00×</output>
   </div>
+
+  <section class="text-panel" id="textPanel" hidden>
+    <div class="text-head">
+      <span class="msg" id="textInfo">±15 s</span>
+      <button type="button" id="copyText">Copy</button>
+    </div>
+    <div class="text" id="text"></div>
+  </section>
 
   <section class="chapters" id="chapters"></section>
   <audio id="player" preload="metadata"></audio>
@@ -285,6 +318,76 @@ if ("mediaSession" in navigator) {
   navigator.mediaSession.setActionHandler("seekforward", () => skip(15));
 }
 
+// ---- Text window: sentences spoken within ±15 s of the current position ----
+const WINDOW = 15;
+const textPanel = $("textPanel"), textBox = $("text"), textInfo = $("textInfo");
+let segs = [], spans = [], paras = [], shown = [-1, -1], nowIdx = -1;
+
+async function loadText(i) {
+  segs = []; spans = []; paras = []; shown = [-1, -1]; nowIdx = -1;
+  textBox.textContent = "";
+  const file = rows[i].ch.text;
+  textPanel.hidden = !file;
+  if (!file) return;
+  const data = await fetch(base + file).then(r => r.json());
+  if (cur !== i) return;  // chapter changed while loading
+  segs = data;
+  let p = null;
+  for (const [, , s, kind] of segs) {
+    if (!p || kind > 0) {
+      p = document.createElement("p");
+      if (kind === 2) p.className = "h";
+      textBox.append(p);
+      paras.push(p);
+    }
+    const span = document.createElement("span");
+    span.textContent = s + " ";
+    span.hidden = true;
+    span.para = p;
+    p.append(span);
+    spans.push(span);
+  }
+  updateText(player.currentTime, true);
+}
+
+function selectionInText() {
+  const sel = document.getSelection();
+  return sel && !sel.isCollapsed && textBox.contains(sel.anchorNode);
+}
+
+function updateText(t, force = false) {
+  if (!segs.length || (!force && selectionInText())) return;  // don't wreck a selection being copied
+  let lo = segs.findIndex(s => s[1] > t - WINDOW);
+  if (lo < 0) lo = segs.length - 1;
+  let hi = lo;
+  while (hi + 1 < segs.length && segs[hi + 1][0] < t + WINDOW) hi++;
+  if (force || lo !== shown[0] || hi !== shown[1]) {
+    spans.forEach((sp, k) => { sp.hidden = k < lo || k > hi; });
+    for (const p of paras) p.hidden = !p.querySelector("span:not([hidden])");
+    shown = [lo, hi];
+  }
+  const now = segs.findIndex(s => s[0] <= t && t < s[1]);
+  if (now !== nowIdx) {
+    if (nowIdx >= 0) spans[nowIdx].classList.remove("now");
+    if (now >= 0) spans[now].classList.add("now");
+    nowIdx = now;
+  }
+}
+
+$("copyText").addEventListener("click", async () => {
+  const sel = selectionInText() ? document.getSelection().toString() : "";
+  const text = sel || paras.filter(p => !p.hidden)
+    .map(p => [...p.children].filter(s => !s.hidden).map(s => s.textContent).join("").trim())
+    .join("\n\n");
+  try {
+    await navigator.clipboard.writeText(text);
+    textInfo.textContent = "Copied";
+  } catch {
+    textInfo.textContent = "Copy failed — select the text instead";
+  }
+  setTimeout(() => { textInfo.textContent = "±15 s"; }, 1500);
+});
+
 function playChapter(i, startAt = 0) {
   ensureCtx();
   if (i !== cur) {
@@ -297,6 +400,7 @@ function playChapter(i, startAt = 0) {
     if ("mediaSession" in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({ title: r.ch.title, artist: book.author, album: book.title });
     }
+    loadText(i).catch(() => { textPanel.hidden = true; });
   }
   player.play();
 }
@@ -312,7 +416,10 @@ player.addEventListener("timeupdate", () => {
   const r = rows[cur];
   if (!r.dragging) r.seek.value = player.currentTime;
   r.pos.textContent = clock(player.currentTime);
+  if (!document.hidden) updateText(player.currentTime);
 });
+player.addEventListener("seeked", () => updateText(player.currentTime, true));
+document.addEventListener("visibilitychange", () => { if (!document.hidden) updateText(player.currentTime, true); });
 player.addEventListener("ended", () => {
   if (cur + 1 < rows.length) playChapter(cur + 1);
 });
