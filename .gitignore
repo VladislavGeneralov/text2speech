@@ -4,4 +4,5 @@ samples/
 *.wav
 render.log
 render.err
+autopublish.log
 __pycache__/
