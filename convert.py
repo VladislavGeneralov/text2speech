@@ -32,14 +32,22 @@ def clean(text, title=False):
     text = re.sub(r"-\n(?=\w)", "-", text)
     text = re.sub(r"\s*\n\s*", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
+    # spaced ellipsis ". . ." would be spoken dot by dot; one "…" is just a pause
+    text = re.sub(r"\s*(?:\.\s){2,}\.|\.{3,}", "…", text)
+    # word broken by a print hyphen ("dic- tated"), but not "pre- and post-"
+    text = re.sub(r"(?<=[a-z])- (?!(?:and|or|to|nor)\b)(?=[a-z])", "", text)
+    text = re.sub(r"_{3,}", "blank", text)   # fill-in lines
+    text = re.sub(r"^[•·▪■◦*]\s*", "", text)  # list bullets
     # ALL-CAPS words (small-caps paragraph openers, epigraph authors) would be spelled
-    # out as acronyms, so lowercase them and re-capitalize sentence starts
+    # out as acronyms. A line that is caps throughout is a name/heading -> Title Case;
+    # otherwise lowercase them and re-capitalize sentence starts
+    title = title or not any(c.islower() for c in text)
     def fix(m):
         w = m.group(0)
-        if w in KEEP_CAPS:
+        if w in KEEP_CAPS or not w.isupper():
             return w
         return w.capitalize() if title else w.lower()
-    text = re.sub(r"\b[A-Z][A-Z’']+\b", fix, text)
+    text = re.sub(r"\b[^\W\d_][^\W\d_’']+\b", fix, text)
     text = re.sub(r"\bi\b(?![.])", "I", text)  # "I’M" -> "i’m" -> "I’m"
     text = re.sub(r"(^|[.?!]\s+|[“\"]\s*)([a-z])", lambda m: m.group(1) + m.group(2).upper(), text)
     return text
@@ -59,7 +67,11 @@ def page_paragraphs(doc, first, last):
             t = clean(b[4])
             if not t or t.isdigit():
                 continue
-            if i == 0 and out and not re.search(r"[.?!:;”\"’)\]—]$", out[-1][1]) and t[:1].islower():
+            if i == 0 and out and not re.search(r"[.?!:;”\"’)\]—…]$", out[-1][1]) and t[:1].islower():
+                out[-1] = (out[-1][0], out[-1][1] + " " + t)
+                continue
+            # a list number sitting in its own block ("1.") belongs to the item after it
+            if out and re.fullmatch(r"\d{1,3}\.", out[-1][1]):
                 out[-1] = (out[-1][0], out[-1][1] + " " + t)
                 continue
             out.append((pno, t))
@@ -81,6 +93,10 @@ def build_chapters(doc):
         # drop heading/subtitle blocks at the top; we speak the TOC title instead
         while paras and len(paras[0][1]) < 120 and norm_key(paras[0][1]) in norm_key(title):
             paras = paras[1:]
+        # ...and the next chapter's divider page ("WEEK 7") that sits before its TOC target
+        next_title = toc[end_idx][1] if end_idx < len(toc) else ""
+        while paras and len(paras[-1][1]) < 40 and norm_key(paras[-1][1]) in norm_key(next_title):
+            paras = paras[:-1]
         items = []  # ("section", title) | ("para", text)
         pending = list(subs)
         for pno, t in paras:
@@ -119,7 +135,10 @@ def render_chapter(tts, ch, voice, speed, lang, wav_path, limit=None):
     return round(t, 2), sections, segs
 
 
-ABBREV = re.compile(r"\b(Mr|Mrs|Ms|Dr|St|Jr|Sr|vs|etc|e\.g|i\.e|No|Mt|Prof)\.$", re.I)
+ABBREV = re.compile(r"\b(Mr|Mrs|Ms|Dr|St|Jr|Sr|vs|etc|e\.g|i\.e|No|Mt|Prof"
+                    r"|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\.$", re.I)
+# initials ("C. G. Jung") and a leading list number ("1. Item") don't end a sentence either
+NO_BREAK = re.compile(r"(\b[A-Z]\.|^\d{1,3}\.)$")
 
 
 def split_sentences(text):
@@ -128,13 +147,20 @@ def split_sentences(text):
     out, buf = [], ""
     for i in range(0, len(pieces), 2):
         buf += pieces[i] + (pieces[i + 1] if i + 1 < len(pieces) else "")
-        if ABBREV.search(buf) or (i + 2 < len(pieces) and pieces[i + 2][:1].islower()):
+        if ABBREV.search(buf) or NO_BREAK.search(buf.strip()) or (i + 2 < len(pieces) and pieces[i + 2][:1].islower()):
             buf += " "
             continue
         out.append(buf.strip()); buf = ""
     if buf.strip():
         out.append(buf.strip())
-    return out
+    # a piece with no letters or digits (stray punctuation) makes noise when spoken alone
+    merged = []
+    for s in out:
+        if merged and not re.search(r"\w", s):
+            merged[-1] += s if re.fullmatch(r"[”\"’)\]]+", s) else " " + s
+        elif re.search(r"\w", s):
+            merged.append(s)
+    return merged
 
 
 def encode(wav, m4a, title, album, track):
