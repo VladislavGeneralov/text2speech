@@ -28,6 +28,40 @@ plus text with per-sentence timings, then published to GitHub Pages and listened
 6. The page opens the first book in `books/index.json`. Any other book: `...?book=<slug>`
    (slug = PDF file name in lowercase with `-` instead of spaces). There is no book picker on the page yet.
 
+## Text artifacts: check BEFORE rendering every new book
+
+A full render takes hours, and every one of these was found only after 12 chapters were done.
+After `--dry`, audit the split sentences of the **whole** book (not just the first paragraphs) for the
+patterns below; convert.py handles the ones marked ✔, a new book will have its own variants.
+
+| Artifact in the PDF | What it sounds/looks like | Status |
+|---|---|---|
+| Spaced ellipsis `. . .` | each dot becomes its own TTS call = half a second of audible noise; sentence cut in pieces. Must be one `…` = a pause only slightly longer than a period | ✔ `clean()` |
+| Any piece with no letters/digits (stray `.` `.”` `?`) | noise when spoken alone | ✔ merged into the previous sentence in `split_sentences()` |
+| Divider page of the next chapter ("WEEK 7") before its TOC target | stray word at the end of the previous chapter | ✔ `build_chapters()` |
+| Heading/subtitle repeated at the top of the chapter | title spoken twice | ✔ |
+| Small-caps paragraph openers `ONE OF OUR Chief` | read letter by letter as acronyms | ✔ lowercased |
+| Lines entirely in caps (epigraph authors `BEN SHAHN`) | same; in text must become `Ben Shahn`, not `Ben shahn` | ✔ Title Case |
+| List number in its own block (`1.` then the item) | number and item split into separate paragraphs/sentences | ✔ merged |
+| Initials and abbreviations (`C. G. Jung`, `Sept. 2`) | sentence wrongly split after the period | ✔ `NO_BREAK`, `ABBREV` (extend per book) |
+| Print hyphenation left in the text (`dic- tated`) | read as two words | ✔ (keeps `two- to three-year`) |
+| Ligatures ﬁ ﬂ ﬀ | wrong characters | ✔ NFKC |
+| Bullets `•`, fill-in lines `______` | symbols in text / unknown sound | ✔ bullet stripped, blanks read as "blank" |
+| Paragraph split by a page break | pause mid-sentence | ✔ joined |
+| Page numbers, running headers/footers | read aloud in the middle of the text | this book had none; **check for the next one** |
+| Footnote markers, tables, URLs, captions | unknown | not handled; **check** |
+
+Run `python audit.py Book.pdf`. It flags: pieces with no letters, `. .`,
+`[a-z]- [a-z]`, leftover 4+ letter ALL-CAPS words, odd symbols, one-word pieces without end punctuation,
+very long pieces (>450 chars), first and last item of every chapter.
+
+After rendering, verify one chapter numerically before trusting the rest: file duration = `book.json`
+duration, last segment text = last text of the chapter in the PDF, every segment's time range contains speech.
+
+Already rendered chapters can be repaired without re-rendering (decode → cut ranges by the segment
+times → re-encode → shift the times in chNN.json and the section times in book.json).
+Don't run such a repair while convert.py is rendering: it rewrites book.json from its own copy.
+
 ## Settings Vlad chose (The Artist's Way, 2026-09-30)
 
 - Voice `af_heart`, render speed 0.9 (so 1.00× in the player = this tempo). American voices only.
