@@ -445,6 +445,89 @@
      "t": 1726.05
     }
    ]
+  },
+  {
+   "n": 18,
+   "title": "Week 12: Recovering a Sense of Faith",
+   "file": "ch18.m4a",
+   "text": "ch18.json",
+   "duration": 1149.23,
+   "sections": [
+    {
+     "title": "Trusting",
+     "t": 26.86
+    },
+    {
+     "title": "Mystery",
+     "t": 186.95
+    },
+    {
+     "title": "The Imagination at Play",
+     "t": 356.0
+    },
+    {
+     "title": "Escape Velocity",
+     "t": 680.02
+    },
+    {
+     "title": "Tasks",
+     "t": 924.09
+    },
+    {
+     "title": "Check-In",
+     "t": 1014.97
+    }
+   ]
+  },
+  {
+   "n": 19,
+   "title": "Epilogue",
+   "file": "ch19.m4a",
+   "text": "ch19.json",
+   "duration": 241.89,
+   "sections": [
+    {
+     "title": "The Artist’s Way",
+     "t": 3.16
+    },
+    {
+     "title": "Words for It",
+     "t": 207.63
+    }
+   ]
+  },
+  {
+   "n": 20,
+   "title": "The Artist’s Way Questions and Answers",
+   "file": "ch20.m4a",
+   "text": "ch20.json",
+   "duration": 558.85,
+   "sections": []
+  },
+  {
+   "n": 21,
+   "title": "Creative Clusters Guide",
+   "file": "ch21.m4a",
+   "text": "ch21.json",
+   "duration": 581.91,
+   "sections": []
+  },
+  {
+   "n": 22,
+   "title": "Appendix 1: Trail Mix",
+   "file": "ch22.m4a",
+   "text": "ch22.json",
+   "duration": 879.27,
+   "sections": [
+    {
+     "title": "Forming a Sacred Circle",
+     "t": 4.06
+    },
+    {
+     "title": "An Artist’s Prayer",
+     "t": 822.65
+    }
+   ]
   }
  ]
 }
