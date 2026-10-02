@@ -7,3 +7,5 @@ render.err
 autopublish.log
 __pycache__/
 render.prev.log
+desktop.ini
+icon.ico
