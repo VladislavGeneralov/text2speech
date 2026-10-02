@@ -8,15 +8,15 @@
    "title": "Foreword by Natalie Goldberg",
    "file": "ch01.m4a",
    "text": "ch01.json",
-   "duration": 110.81,
+   "duration": 124.02,
    "sections": []
   },
   {
    "n": 2,
-   "title": "Introduction to the Twenty-fifth Anniversary Edition of The Artist’s Way",
+   "title": "Introduction to the Twenty-fifth Anniversary Edition of The Artist’S Way",
    "file": "ch02.m4a",
    "text": "ch02.json",
-   "duration": 386.21,
+   "duration": 439.7,
    "sections": []
   },
   {
@@ -24,7 +24,7 @@
    "title": "Dedication",
    "file": "ch03.m4a",
    "text": "ch03.json",
-   "duration": 10.58,
+   "duration": 12.31,
    "sections": []
   },
   {
@@ -32,7 +32,7 @@
    "title": "Introduction",
    "file": "ch04.m4a",
    "text": "ch04.json",
-   "duration": 874.32,
+   "duration": 983.42,
    "sections": []
   },
   {
@@ -40,7 +40,7 @@
    "title": "Spiritual Electricity: The Basic Principles",
    "file": "ch05.m4a",
    "text": "ch05.json",
-   "duration": 888.8,
+   "duration": 993.92,
    "sections": []
   },
   {
@@ -48,7 +48,7 @@
    "title": "The Basic Tools",
    "file": "ch06.m4a",
    "text": "ch06.json",
-   "duration": 2207.11,
+   "duration": 2494.96,
    "sections": []
   },
   {
@@ -56,27 +56,27 @@
    "title": "Week 1: Recovering a Sense of Safety",
    "file": "ch07.m4a",
    "text": "ch07.json",
-   "duration": 1987.56,
+   "duration": 2223.22,
    "sections": [
     {
      "title": "Shadow Artists",
-     "t": 21.79
+     "t": 23.96
     },
     {
      "title": "Your Enemy Within: Core Negative Beliefs",
-     "t": 746.27
+     "t": 831.14
     },
     {
      "title": "Your Ally Within: Affirmative Weapons",
-     "t": 1119.82
+     "t": 1244.95
     },
     {
      "title": "Tasks",
-     "t": 1618.33
+     "t": 1804.84
     },
     {
      "title": "Check-In",
-     "t": 1921.51
+     "t": 2147.33
     }
    ]
   },
@@ -85,39 +85,39 @@
    "title": "Week 2: Recovering a Sense of Identity",
    "file": "ch08.m4a",
    "text": "ch08.json",
-   "duration": 2412.64,
+   "duration": 2698.65,
    "sections": [
     {
      "title": "Going Sane",
-     "t": 25.33
+     "t": 27.64
     },
     {
      "title": "Poisonous Playmates",
-     "t": 169.57
+     "t": 188.05
     },
     {
      "title": "Crazymakers",
-     "t": 480.53
+     "t": 539.42
     },
     {
      "title": "Skepticism",
-     "t": 1214.27
+     "t": 1351.53
     },
     {
      "title": "Attention",
-     "t": 1532.69
+     "t": 1713.56
     },
     {
      "title": "Rules of the Road",
-     "t": 2017.68
+     "t": 2252.7
     },
     {
      "title": "Tasks",
-     "t": 2078.74
+     "t": 2318.87
     },
     {
      "title": "Check-In",
-     "t": 2355.64
+     "t": 2632.51
     }
    ]
   },
@@ -126,39 +126,39 @@
    "title": "Week 3: Recovering a Sense of Power",
    "file": "ch09.m4a",
    "text": "ch09.json",
-   "duration": 2219.63,
+   "duration": 2512.3,
    "sections": [
     {
      "title": "Anger",
-     "t": 22.23
+     "t": 24.49
     },
     {
      "title": "Synchronicity",
-     "t": 182.33
+     "t": 216.37
     },
     {
      "title": "Shame",
-     "t": 829.7
+     "t": 946.08
     },
     {
      "title": "Dealing with Criticism",
-     "t": 1488.81
+     "t": 1692.08
     },
     {
      "title": "Detective Work, an Exercise",
-     "t": 1635.96
+     "t": 1856.11
     },
     {
      "title": "Growth",
-     "t": 1785.08
+     "t": 2013.55
     },
     {
      "title": "Tasks",
-     "t": 1973.54
+     "t": 2231.88
     },
     {
      "title": "Check-In",
-     "t": 2190.29
+     "t": 2477.48
     }
    ]
   },
@@ -167,27 +167,27 @@
    "title": "Week 4: Recovering a Sense of Integrity",
    "file": "ch10.m4a",
    "text": "ch10.json",
-   "duration": 1530.96,
+   "duration": 1733.46,
    "sections": [
     {
      "title": "Honest Changes",
-     "t": 24.9
+     "t": 27.85
     },
     {
      "title": "Buried Dreams, an Exercise",
-     "t": 985.83
+     "t": 1104.45
     },
     {
      "title": "Reading Deprivation",
-     "t": 1052.94
+     "t": 1178.13
     },
     {
      "title": "Tasks",
-     "t": 1334.18
+     "t": 1498.35
     },
     {
      "title": "Check-In",
-     "t": 1499.66
+     "t": 1696.33
     }
    ]
   },
@@ -196,31 +196,31 @@
    "title": "Week 5: Recovering a Sense of Possibility",
    "file": "ch11.m4a",
    "text": "ch11.json",
-   "duration": 1740.3,
+   "duration": 1955.46,
    "sections": [
     {
      "title": "Limits",
-     "t": 28.21
+     "t": 31.07
     },
     {
      "title": "Finding the River",
-     "t": 475.04
+     "t": 528.65
     },
     {
      "title": "The Virtue Trap",
-     "t": 783.49
+     "t": 871.08
     },
     {
      "title": "The Virtue-Trap Quiz",
-     "t": 1365.76
+     "t": 1530.89
     },
     {
      "title": "Forbidden Joys, an Exercise",
-     "t": 1419.72
+     "t": 1592.99
     },
     {
      "title": "Wish List, an Exercise",
-     "t": 1484.94
+     "t": 1665.83
     }
    ]
   },
@@ -229,31 +229,31 @@
    "title": "Week 6: Recovering a Sense of Abundance",
    "file": "ch12.m4a",
    "text": "ch12.json",
-   "duration": 1307.45,
+   "duration": 1481.47,
    "sections": [
     {
      "title": "The Great Creator",
-     "t": 27.14
+     "t": 30.46
     },
     {
      "title": "Luxury",
-     "t": 485.32
+     "t": 550.58
     },
     {
      "title": "Counting, an Exercise",
-     "t": 1021.02
+     "t": 1147.27
     },
     {
      "title": "Money Madness, an Exercise",
-     "t": 1080.02
+     "t": 1214.24
     },
     {
      "title": "Tasks",
-     "t": 1151.62
+     "t": 1298.03
     },
     {
      "title": "Check-In",
-     "t": 1276.23
+     "t": 1444.65
     }
    ]
   },
@@ -262,39 +262,39 @@
    "title": "Week 7: Recovering a Sense of Connection",
    "file": "ch13.m4a",
    "text": "ch13.json",
-   "duration": 1327.4,
+   "duration": 1515.21,
    "sections": [
     {
      "title": "Listening",
-     "t": 22.4
+     "t": 24.67
     },
     {
      "title": "Perfectionism",
-     "t": 328.48
+     "t": 367.26
     },
     {
      "title": "Risk",
-     "t": 511.64
+     "t": 578.33
     },
     {
      "title": "Jealousy",
-     "t": 808.49
+     "t": 922.27
     },
     {
      "title": "The Jealousy Map, an Exercise",
-     "t": 934.91
+     "t": 1064.05
     },
     {
      "title": "Archeology, an Exercise",
-     "t": 998.54
+     "t": 1136.5
     },
     {
      "title": "Tasks",
-     "t": 1114.35
+     "t": 1271.28
     },
     {
      "title": "Check-In",
-     "t": 1296.17
+     "t": 1476.81
     }
    ]
   },
@@ -303,43 +303,43 @@
    "title": "Week 8: Recovering a Sense of Strength",
    "file": "ch14.m4a",
    "text": "ch14.json",
-   "duration": 2661.76,
+   "duration": 2986.49,
    "sections": [
     {
      "title": "Survival",
-     "t": 26.69
+     "t": 29.56
     },
     {
      "title": "The Ivory Power",
-     "t": 265.98
+     "t": 293.54
     },
     {
      "title": "Gain Disguised as Loss",
-     "t": 825.58
+     "t": 911.07
     },
     {
      "title": "Age and Time: Product and Process",
-     "t": 1290.91
+     "t": 1430.77
     },
     {
      "title": "Filling the Form",
-     "t": 1669.74
+     "t": 1857.69
     },
     {
      "title": "Early Patternings, an Exercise",
-     "t": 2197.83
+     "t": 2442.26
     },
     {
      "title": "Affirmations",
-     "t": 2331.21
+     "t": 2595.14
     },
     {
      "title": "Tasks",
-     "t": 2379.64
+     "t": 2652.77
     },
     {
      "title": "Check-In",
-     "t": 2630.77
+     "t": 2948.66
     }
    ]
   },
@@ -348,31 +348,31 @@
    "title": "Week 9: Recovering a Sense of Compassion",
    "file": "ch15.m4a",
    "text": "ch15.json",
-   "duration": 1384.75,
+   "duration": 1585.31,
    "sections": [
     {
      "title": "Fear",
-     "t": 34.27
+     "t": 38.82
     },
     {
      "title": "Enthusiasm",
-     "t": 226.25
+     "t": 259.5
     },
     {
      "title": "Creative U-Turns",
-     "t": 435.97
+     "t": 494.71
     },
     {
      "title": "Blasting Through Blocks",
-     "t": 952.03
+     "t": 1075.8
     },
     {
      "title": "Tasks",
-     "t": 1149.99
+     "t": 1306.26
     },
     {
      "title": "Check-In",
-     "t": 1349.24
+     "t": 1541.98
     }
    ]
   },
@@ -381,35 +381,35 @@
    "title": "Week 10: Recovering a Sense of Self-Protection",
    "file": "ch16.m4a",
    "text": "ch16.json",
-   "duration": 1880.2,
+   "duration": 2144.89,
    "sections": [
     {
      "title": "Dangers of the Trail",
-     "t": 23.13
+     "t": 25.44
     },
     {
      "title": "Workaholism",
-     "t": 383.05
+     "t": 442.04
     },
     {
      "title": "Drought",
-     "t": 813.64
+     "t": 925.52
     },
     {
      "title": "Fame",
-     "t": 1035.16
+     "t": 1180.1
     },
     {
      "title": "Competition",
-     "t": 1206.5
+     "t": 1375.7
     },
     {
      "title": "Tasks",
-     "t": 1577.13
+     "t": 1794.88
     },
     {
      "title": "Check-In",
-     "t": 1850.2
+     "t": 2108.04
     }
    ]
   },
@@ -418,31 +418,31 @@
    "title": "Week 11: Recovering a Sense of Autonomy",
    "file": "ch17.m4a",
    "text": "ch17.json",
-   "duration": 1757.39,
+   "duration": 1974.36,
    "sections": [
     {
      "title": "Acceptance",
-     "t": 27.06
+     "t": 29.84
     },
     {
      "title": "Success",
-     "t": 476.3
+     "t": 534.97
     },
     {
      "title": "The Zen of Sports",
-     "t": 821.77
+     "t": 919.66
     },
     {
      "title": "Building Your Artist’s Altar",
-     "t": 1495.35
+     "t": 1674.1
     },
     {
      "title": "Tasks",
-     "t": 1617.18
+     "t": 1810.79
     },
     {
      "title": "Check-In",
-     "t": 1726.05
+     "t": 1934.52
     }
    ]
   },
@@ -451,31 +451,31 @@
    "title": "Week 12: Recovering a Sense of Faith",
    "file": "ch18.m4a",
    "text": "ch18.json",
-   "duration": 1149.23,
+   "duration": 1313.66,
    "sections": [
     {
      "title": "Trusting",
-     "t": 26.86
+     "t": 29.77
     },
     {
      "title": "Mystery",
-     "t": 186.95
+     "t": 212.39
     },
     {
      "title": "The Imagination at Play",
-     "t": 356.0
+     "t": 406.02
     },
     {
      "title": "Escape Velocity",
-     "t": 680.02
+     "t": 770.38
     },
     {
      "title": "Tasks",
-     "t": 924.09
+     "t": 1050.58
     },
     {
      "title": "Check-In",
-     "t": 1014.97
+     "t": 1160.15
     }
    ]
   },
@@ -484,15 +484,15 @@
    "title": "Epilogue",
    "file": "ch19.m4a",
    "text": "ch19.json",
-   "duration": 241.89,
+   "duration": 268.45,
    "sections": [
     {
      "title": "The Artist’s Way",
-     "t": 3.16
+     "t": 3.42
     },
     {
      "title": "Words for It",
-     "t": 207.63
+     "t": 229.52
     }
    ]
   },
@@ -501,7 +501,7 @@
    "title": "The Artist’s Way Questions and Answers",
    "file": "ch20.m4a",
    "text": "ch20.json",
-   "duration": 558.85,
+   "duration": 611.05,
    "sections": []
   },
   {
@@ -509,7 +509,7 @@
    "title": "Creative Clusters Guide",
    "file": "ch21.m4a",
    "text": "ch21.json",
-   "duration": 581.91,
+   "duration": 646.18,
    "sections": []
   },
   {
@@ -517,15 +517,15 @@
    "title": "Appendix 1: Trail Mix",
    "file": "ch22.m4a",
    "text": "ch22.json",
-   "duration": 879.27,
+   "duration": 981.51,
    "sections": [
     {
      "title": "Forming a Sacred Circle",
-     "t": 4.06
+     "t": 4.47
     },
     {
      "title": "An Artist’s Prayer",
-     "t": 822.65
+     "t": 917.34
     }
    ]
   },
@@ -534,7 +534,7 @@
    "title": "Appendix 2: Trail Markers",
    "file": "ch23.m4a",
    "text": "ch23.json",
-   "duration": 936.08,
+   "duration": 1026.25,
    "sections": []
   },
   {
@@ -542,7 +542,7 @@
    "title": "About the Author",
    "file": "ch24.m4a",
    "text": "ch24.json",
-   "duration": 40.46,
+   "duration": 46.0,
    "sections": []
   }
  ]
