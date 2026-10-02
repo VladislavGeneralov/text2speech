@@ -17,8 +17,20 @@ import soundfile as sf
 ROOT = Path(__file__).parent
 SITE_BOOKS = ROOT / "site" / "books"
 SR = 24000
-PARA_GAP = 0.45   # seconds of silence between paragraphs
-SECTION_GAP = 1.2  # before a section heading
+# Pauses, in seconds. Kokoro clips come with 0.03-0.17 s of silence on the edges,
+# varying clip to clip; trim_edges() cuts that down to LEAD_PAD/TAIL_PAD so the
+# gaps below are what the listener actually hears between sentences.
+LEAD_PAD = 0.02
+TAIL_PAD = 0.05
+GAP_PERIOD = 0.60    # after "." — a breath before the next sentence
+GAP_STRONG = 0.70    # after "?" and "!"
+GAP_ELLIPSIS = 0.85  # after "…"
+GAP_LONG_BONUS = 0.10  # extra after a sentence longer than LONG_SENT seconds
+LONG_SENT = 6.0
+PARA_EXTRA = 0.50    # added on top of the sentence gap at a paragraph end
+HEAD_EXTRA = 0.60    # added after the chapter title / a section heading
+SECTION_GAP = 1.5    # before a section heading
+EDGE_THRESH = 0.003  # amplitude below this counts as edge silence
 
 # TOC entries that make no sense read aloud
 SKIP = re.compile(r"^(also by|copyright|contents|index|reading list|resources)\b", re.I)
@@ -108,6 +120,23 @@ def build_chapters(doc):
     return chapters
 
 
+def trim_edges(audio):
+    """Cut Kokoro's variable edge silence down to LEAD_PAD/TAIL_PAD."""
+    idx = np.nonzero(np.abs(audio) > EDGE_THRESH)[0]
+    if len(idx) == 0:
+        return audio
+    lo = max(0, idx[0] - int(SR * LEAD_PAD))
+    hi = min(len(audio), idx[-1] + 1 + int(SR * TAIL_PAD))
+    return audio[lo:hi]
+
+
+def sentence_gap(text, dur):
+    """Pause after a sentence: stronger punctuation and longer sentences get more air."""
+    end = re.sub(r"[”\"’)\]]+$", "", text)[-1:]
+    g = GAP_ELLIPSIS if end == "…" else GAP_STRONG if end in "?!" else GAP_PERIOD
+    return g + (GAP_LONG_BONUS if dur > LONG_SENT else 0.0)
+
+
 def render_chapter(tts, ch, voice, speed, lang, wav_path, limit=None):
     silence = lambda s: np.zeros(int(SR * s), dtype=np.float32)
     parts, t, sections = [], 0.0, []
@@ -124,11 +153,14 @@ def render_chapter(tts, ch, voice, speed, lang, wav_path, limit=None):
         for j, s in enumerate(sentences):
             audio, sr = tts.create(s, voice=voice, speed=speed, lang=lang)
             assert sr == SR
+            audio = trim_edges(audio.astype(np.float32))
             start = t
-            parts.append(audio.astype(np.float32)); t += len(audio) / SR
+            parts.append(audio); t += len(audio) / SR
             segs.append([round(start, 2), round(t, 2), s, 2 if kind != "para" else int(j == 0)])
-        gap = 1.0 if kind in ("title", "section") else PARA_GAP
-        parts.append(silence(gap)); t += gap
+            gap = sentence_gap(s, t - start)
+            parts.append(silence(gap)); t += gap
+        extra = HEAD_EXTRA if kind in ("title", "section") else PARA_EXTRA
+        parts.append(silence(extra)); t += extra
         print(f"\r  {k + 1}/{len(items)} paragraphs", end="", flush=True)
     print()
     sf.write(wav_path, np.concatenate(parts), SR)

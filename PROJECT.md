@@ -66,6 +66,15 @@ Don't run such a repair while convert.py is rendering: it rewrites book.json fro
 
 - Voice `af_heart`, render speed 0.9 (so 1.00× in the player = this tempo). American voices only.
   Everything else in the Kokoro model: `a`/`b` = American/British English, `f`/`m` = female/male.
+- Pauses (2026-10-02, "natural human reading" rework): Kokoro clips used to be concatenated
+  back-to-back, so sentences inside a paragraph had **zero** pause between them. Now each clip's
+  variable edge silence (0.03–0.17 s) is trimmed to a fixed pad and explicit gaps are inserted:
+  0.6 s after `.`, 0.7 s after `?`/`!`, 0.85 s after `…`, +0.1 s after sentences longer than 6 s;
+  paragraph end adds +0.5 s on top, headings +0.6 s, 1.5 s before a section heading.
+  All constants sit at the top of convert.py. Kokoro needs no help *inside* a sentence —
+  measured: comma/dash/parens ≈ 0.2 s, semicolon/ellipsis/quotes ≈ 0.3 s, and it intones
+  questions/exclamations itself (no SSML support; punctuation reaching the model is the only lever).
+  A/B of the old vs new ch01 is in `samples/ch01-old-pauses.m4a` / `ch01-new-pauses.m4a`.
 - Audio: mono AAC 48 kbps m4a (~20 MB/hour; GitHub rejects files over 100 MB).
 - Each chapter gets `chNN.json` = `[start, end, sentence, kind]`, kind 0 = same paragraph, 1 = new paragraph, 2 = heading.
 
